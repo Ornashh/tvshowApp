@@ -8,6 +8,7 @@ const card = document.querySelector(".card");
 const modalEl = document.querySelector(".modal");
 const formEl = document.querySelector(".form");
 const searchEl = document.querySelector(".search");
+const backBtn = document.querySelector(".back-btn");
 
 async function getTvShow(url) {
   const response = await fetch(url);
@@ -93,4 +94,11 @@ formEl.addEventListener("submit", (e) => {
     getTvShow(searchUrl + searchEl.value);
     searchEl.value = "";
   }
+
+  backBtn.style.display = "block";
+
+  backBtn.addEventListener("click", () => {
+    getTvShow(popularShowUrl);
+    backBtn.style.display = "none";
+  });
 });
