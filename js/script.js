@@ -4,72 +4,59 @@ const imgUrl = "http://image.tmdb.org/t/p/w1280";
 const searchUrl =
   "https://api.themoviedb.org/3/search/tv?api_key=39008b197a5755859d6786a809d485be&language=en-US&page=1&query=";
 
-const card = document.querySelector(".card");
+const cardEl = document.querySelector(".card");
 const modalEl = document.querySelector(".modal");
 const formEl = document.querySelector(".form");
 const searchEl = document.querySelector(".search");
 const backBtn = document.querySelector(".back-btn");
 
 async function getTvShow(url) {
-  const response = await fetch(url);
-  const responseData = await response.json();
+  const res = await fetch(url);
+  const data = await res.json();
 
-  showTv(responseData.results);
+  showTv(data.results);
 }
 
 getTvShow(popularShowUrl);
 
 function showTv(query) {
-  card.innerHTML = "";
+  cardEl.innerHTML = "";
 
   query.forEach((tvShow) => {
     let cardInnerEl = document.createElement("div");
     cardInnerEl.classList.add("card-inner");
 
     cardInnerEl.innerHTML = `
-            <img 
-                src="${imgUrl + tvShow.poster_path}"
-                alt="${tvShow.name}"
-            >
-            <div class="card-name">
-                ${tvShow.name}
-            </div>
-        `;
+      <img src=${imgUrl + tvShow.poster_path}>
+      <div class="card-name">${tvShow.name}</div>
+    `;
 
-    card.appendChild(cardInnerEl);
+    cardEl.appendChild(cardInnerEl);
 
     let modalInnerEl = document.createElement("div");
     modalInnerEl.classList.add("modal-inner");
 
     modalInnerEl.innerHTML = `
-            <div class="modal-btn">
-                <button type="button">&times;</button>
+      <div class="modal-btn">
+        <button type="button">&times;</button>
+      </div>
+      <div class="modal-bg">
+        <img src=${imgUrl + tvShow.backdrop_path}>
+      </div>
+      <div class="modal-text">
+        <div class="name">
+          <span>${tvShow.vote_average}</span>
+          <h2>
+            ${tvShow.name}
+            <div class="year">
+              (${tvShow.first_air_date.slice(0, 4)})
             </div>
-            <div class="modal-bg">
-                <img 
-                    src="${imgUrl + tvShow.backdrop_path}"
-                    alt="${tvShow.name}"
-                >
-            </div>
-            <div class="modal-text">
-                <div class="name">
-                    <span>${tvShow.vote_average}</span>
-                    <h2>
-                        ${tvShow.name}
-                        <div class="year">(${tvShow.first_air_date.slice(
-                          0,
-                          4
-                        )})</div>
-                    </h2>
-                </div>
-                <div class="overview">
-                    ${tvShow.overview}
-                </div>
-                <div>
-                    Country: ${tvShow.origin_country[0]}
-                </div>
-            </div>
-        `;
+          </h2>
+        </div>
+        <div class="overview">${tvShow.overview}</div>
+        <div>Country: ${tvShow.origin_country[0]}</div>
+      </div>
+    `;
 
     cardInnerEl.addEventListener("click", () => {
       modalEl.appendChild(modalInnerEl);
