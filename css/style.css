@@ -215,7 +215,7 @@ body {
 
 @media (max-width: 500px) {
   .card {
-    padding-top: 96px;
+    padding-top: 100px;
   }
 }
 
@@ -241,7 +241,7 @@ body {
 .back-btn {
   color: #fff;
   font-size: 24px;
-  border: 1px solid #fff;
+  border: 1px solid #1f1f1f;
   border-radius: 5px;
   cursor: pointer;
   display: none;

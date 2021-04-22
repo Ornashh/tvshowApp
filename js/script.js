@@ -11,52 +11,85 @@ const searchEl = document.querySelector(".search");
 const backBtn = document.querySelector(".back-btn");
 
 async function getTvShow(url) {
-  const res = await fetch(url);
-  const data = await res.json();
+  const response = await fetch(url);
+  const data = await response.json();
 
   showTv(data.results);
 }
-
-getTvShow(popularShowUrl);
 
 function showTv(query) {
   cardEl.innerHTML = "";
 
   query.forEach((tvShow) => {
-    let cardInnerEl = document.createElement("div");
+    const cardInnerEl = document.createElement("div");
     cardInnerEl.classList.add("card-inner");
 
-    cardInnerEl.innerHTML = `
-      <img src=${imgUrl + tvShow.poster_path}>
-      <div class="card-name">${tvShow.name}</div>
-    `;
+    if (tvShow.poster_path === null) {
+      cardInnerEl.innerHTML = `
+        <img src="./img/poster-not-found.jpg">
+        <div class="card-name">${tvShow.name}</div>
+      `;
+    } else {
+      cardInnerEl.innerHTML = `
+        <img src=${imgUrl + tvShow.poster_path}>
+        <div class="card-name">${tvShow.name}</div>
+      `;
+    }
 
-    cardEl.appendChild(cardInnerEl);
-
-    let modalInnerEl = document.createElement("div");
+    const modalInnerEl = document.createElement("div");
     modalInnerEl.classList.add("modal-inner");
 
-    modalInnerEl.innerHTML = `
-      <div class="modal-btn">
-        <button type="button">&times;</button>
-      </div>
-      <div class="modal-bg">
-        <img src=${imgUrl + tvShow.backdrop_path}>
-      </div>
-      <div class="modal-text">
-        <div class="name">
-          <span>${tvShow.vote_average}</span>
-          <h2>
-            ${tvShow.name}
-            <div class="year">
-              (${tvShow.first_air_date.slice(0, 4)})
-            </div>
-          </h2>
+    if (
+      tvShow.backdrop_path === null ||
+      tvShow.first_air_date === "" ||
+      tvShow.origin_country[0] === undefined
+    ) {
+      modalInnerEl.innerHTML = `
+        <div class="modal-btn">
+          <button type="button">&times;</button>
         </div>
-        <div class="overview">${tvShow.overview}</div>
-        <div>Country: ${tvShow.origin_country[0]}</div>
-      </div>
-    `;
+        <div class="modal-bg">
+          <img src="./img/backdrop-not-found.jpg">
+        </div>
+        <div class="modal-text">
+          <div class="name">
+            <span>${tvShow.vote_average}</span>
+            <h2>
+              ${tvShow.name}
+              <div class="year">
+                (Not Found)
+              </div>
+            </h2>
+          </div>
+          <div class="overview">${tvShow.overview}</div>
+          <div>Country: Not Found</div>
+        </div>
+      `;
+    } else {
+      modalInnerEl.innerHTML = `
+        <div class="modal-btn">
+          <button type="button">&times;</button>
+        </div>
+        <div class="modal-bg">
+          <img src=${imgUrl + tvShow.backdrop_path}>
+        </div>
+        <div class="modal-text">
+          <div class="name">
+            <span>${tvShow.vote_average}</span>
+            <h2>
+              ${tvShow.name}
+              <div class="year">
+                (${tvShow.first_air_date.slice(0, 4)})
+              </div>
+            </h2>
+          </div>
+          <div class="overview">${tvShow.overview}</div>
+          <div>Country: ${tvShow.origin_country[0]}</div>
+        </div>
+      `;
+    }
+
+    cardEl.appendChild(cardInnerEl);
 
     cardInnerEl.addEventListener("click", () => {
       modalEl.appendChild(modalInnerEl);
@@ -73,6 +106,8 @@ function showTv(query) {
     });
   });
 }
+
+getTvShow(popularShowUrl);
 
 formEl.addEventListener("submit", (e) => {
   e.preventDefault();
