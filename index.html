@@ -4,26 +4,36 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="#" />
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+      integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk"
+      crossorigin="anonymous"
+    />
     <link rel="stylesheet" href="css/style.css" />
-    <title>Tv Shows</title>
+    <title>TV Shows DB</title>
   </head>
   <body>
     <div class="main">
       <nav class="nav">
-        <div class="logo">TV Show DB</div>
-        <div class="menu">
-          <form class="form">
-            <input type="text" class="search" placeholder="search" />
-          </form>
-        </div>
+        <div class="logo">TV Shows DB</div>
+        <form class="form">
+          <input type="text" class="search" placeholder="search" />
+        </form>
       </nav>
 
       <div class="modal"></div>
 
       <div class="card"></div>
 
-      <button class="back-btn">Back</button>
+      <div class="back-btn">
+        <button>Back</button>
+      </div>
+
+      <div class="pagination">
+        <ul></ul>
+      </div>
     </div>
 
     <script src="js/script.js"></script>
