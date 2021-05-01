@@ -3,8 +3,6 @@ const popularShowUrl =
 const imgUrl = "http://image.tmdb.org/t/p/w1280";
 const searchUrl =
   "https://api.themoviedb.org/3/search/tv?api_key=39008b197a5755859d6786a809d485be&language=en-US&page=1&query=";
-const genresUrl =
-  "https://api.themoviedb.org/3/genre/movie/list?api_key=39008b197a5755859d6786a809d485be&language=en-US";
 
 const cardEl = document.querySelector(".card");
 const modalEl = document.querySelector(".modal");
@@ -14,12 +12,89 @@ const backBtn = document.querySelector(".back-btn");
 const pagination = document.querySelector(".pagination");
 const paginationInner = document.querySelector(".pagination ul");
 
-// FETCHING FUNCTION
+async function fetchDetails(id) {
+  const response = await fetch(
+    `https://api.themoviedb.org/3/tv/${id}?api_key=39008b197a5755859d6786a809d485be&language=en-US`
+  );
+  const details = await response.json();
+
+  const genresArr = [];
+
+  details.genres.forEach((genres) => {
+    genresArr.push(genres.name);
+  });
+
+  const modalInnerEl = document.createElement("div");
+  modalInnerEl.classList.add("modal-inner");
+
+  if (
+    details.backdrop_path === null ||
+    details.first_air_date === "" ||
+    details.origin_country[0] === undefined ||
+    genresArr === []
+  ) {
+    modalInnerEl.innerHTML = `
+      <div class="modal-btn">
+        <button type="button">&times;</button>
+      </div>
+      <div class="modal-bg">
+        <img src="./img/backdrop-not-found.jpg">
+      </div>
+      <div class="modal-text">
+        <div class="name">
+          <span>${details.vote_average}</span>
+          <h2>${details.name}</h2>
+          <p>(Not Found)</p>
+        </div>
+        <div class="overview">${details.overview}</div>
+        <div class="more-info">
+          <div>Country: Not Found</div>
+          <div>Status: ${details.status}</div>
+          <div>Seasons: ${details.seasons.length}</div>
+        </div>
+      </div>
+    `;
+  } else {
+    modalInnerEl.innerHTML = `
+      <div class="modal-btn">
+        <button type="button">&times;</button>
+      </div>
+      <div class="modal-bg">
+        <img src=${imgUrl + details.backdrop_path}>
+      </div>
+      <div class="modal-text">
+        <div class="name">
+          <span>${details.vote_average}</span>
+          <h2>${details.name}</h2>
+          <p>(${details.first_air_date.slice(0, 4)})</p>
+        </div>
+        <div class="genres">${genresArr.join(", ")}</div>
+        <div class="overview">${details.overview}</div>
+        <div class="more-info">
+          <div>Country: ${details.origin_country[0]}</div>
+          <div>Status: ${details.status}</div>
+          <div>Seasons: ${details.seasons.length}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  modalEl.appendChild(modalInnerEl);
+  modalEl.classList.add("show-modal");
+  document.body.style.overflow = "hidden";
+
+  document.querySelector(".modal-btn button").addEventListener("click", () => {
+    modalEl.innerHTML = "";
+    modalEl.classList.remove("show-modal");
+    document.body.style.overflow = "auto";
+  });
+}
+
 async function fetchShow(url) {
   const response = await fetch(url);
-  const data = await response.json();
+  const show = await response.json();
 
-  displayShow(data.results);
+  displayShow(show.results);
 }
 
 function displayShow(query) {
@@ -41,70 +116,11 @@ function displayShow(query) {
       `;
     }
 
-    const modalInnerEl = document.createElement("div");
-    modalInnerEl.classList.add("modal-inner");
-
-    if (
-      show.backdrop_path === null ||
-      show.first_air_date === "" ||
-      show.origin_country[0] === undefined
-    ) {
-      modalInnerEl.innerHTML = `
-        <div class="modal-btn">
-          <button type="button">&times;</button>
-        </div>
-        <div class="modal-bg">
-          <img src="./img/backdrop-not-found.jpg">
-        </div>
-        <div class="modal-text">
-          <div class="name">
-            <span>${show.vote_average}</span>
-            <h2>${show.name}</h2>
-            <p>(Not Found)</p>
-          </div>
-          <div class="overview">${show.overview}</div>
-          <div>Country: Not Found</div>
-        </div>
-      `;
-    } else {
-      modalInnerEl.innerHTML = `
-        <div class="modal-btn">
-          <button type="button">&times;</button>
-        </div>
-        <div class="modal-bg">
-          <img src=${imgUrl + show.backdrop_path}>
-        </div>
-        <div class="modal-text">
-          <div class="name">
-            <span>${show.vote_average}</span>
-            <h2>${show.name}</h2>
-            <p>(${show.first_air_date.slice(0, 4)})</p>
-          </div>
-          <div class="overview">${show.overview}</div>
-          <div>Country: ${show.origin_country[0]}</div>
-        </div>
-      `;
-    }
-
     cardEl.appendChild(cardInnerEl);
 
     cardInnerEl.addEventListener("click", (e) => {
       if (e.target.className === "card-img") {
-        modalEl.appendChild(modalInnerEl);
-        modalEl.classList.add("show-modal");
-        document.body.style.overflow = "hidden";
-      }
-
-      try {
-        document
-          .querySelector(".modal-btn button")
-          .addEventListener("click", () => {
-            modalEl.innerHTML = "";
-            modalEl.classList.remove("show-modal");
-            document.body.style.overflow = "auto";
-          });
-      } catch (error) {
-        return;
+        fetchDetails(show.id);
       }
     });
   });
@@ -112,7 +128,6 @@ function displayShow(query) {
 
 fetchShow(popularShowUrl);
 
-// HANDLER SEARCH
 formEl.addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -131,7 +146,6 @@ formEl.addEventListener("submit", (e) => {
   });
 });
 
-// PAGINATION
 let totalPages = 500;
 let page = 1;
 
