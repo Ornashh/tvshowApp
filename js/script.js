@@ -27,57 +27,40 @@ async function fetchDetails(id) {
   const modalInnerEl = document.createElement("div");
   modalInnerEl.classList.add("modal-inner");
 
-  if (
-    details.backdrop_path === null ||
-    details.first_air_date === "" ||
-    details.origin_country[0] === undefined ||
-    genresArr === []
-  ) {
-    modalInnerEl.innerHTML = `
-      <div class="modal-btn">
-        <button type="button">&times;</button>
+  modalInnerEl.innerHTML = `
+    <div class="modal-btn">
+      <button type="button">&times;</button>
+    </div>
+    <div class="modal-bg">
+      <img src=${
+        details.backdrop_path === null
+          ? "./img/backdrop-not-found.jpg"
+          : imgUrl + details.backdrop_path
+      }>
+    </div>
+    <div class="modal-text">
+      <div class="name">
+        <span>${details.vote_average}</span>
+        <h2>${details.name}</h2>
+        <p>(${
+          details.first_air_date === ""
+            ? ""
+            : details.first_air_date.slice(0, 4)
+        })</p>
       </div>
-      <div class="modal-bg">
-        <img src="./img/backdrop-not-found.jpg">
+      <div class="genres">${genresArr === [] ? "" : genresArr.join(", ")}</div>
+      <div class="overview">${details.overview}</div>
+      <div class="more-info">
+        <div>Country: ${
+          details.origin_country[0] === undefined
+            ? "Not Found"
+            : details.origin_country[0]
+        }</div>
+        <div>Status: ${details.status}</div>
+        <div>Seasons: ${details.seasons.length}</div>
       </div>
-      <div class="modal-text">
-        <div class="name">
-          <span>${details.vote_average}</span>
-          <h2>${details.name}</h2>
-          <p>(Not Found)</p>
-        </div>
-        <div class="overview">${details.overview}</div>
-        <div class="more-info">
-          <div>Country: Not Found</div>
-          <div>Status: ${details.status}</div>
-          <div>Seasons: ${details.seasons.length}</div>
-        </div>
-      </div>
-    `;
-  } else {
-    modalInnerEl.innerHTML = `
-      <div class="modal-btn">
-        <button type="button">&times;</button>
-      </div>
-      <div class="modal-bg">
-        <img src=${imgUrl + details.backdrop_path}>
-      </div>
-      <div class="modal-text">
-        <div class="name">
-          <span>${details.vote_average}</span>
-          <h2>${details.name}</h2>
-          <p>(${details.first_air_date.slice(0, 4)})</p>
-        </div>
-        <div class="genres">${genresArr.join(", ")}</div>
-        <div class="overview">${details.overview}</div>
-        <div class="more-info">
-          <div>Country: ${details.origin_country[0]}</div>
-          <div>Status: ${details.status}</div>
-          <div>Seasons: ${details.seasons.length}</div>
-        </div>
-      </div>
-    `;
-  }
+    </div>
+  `;
 
   modalEl.appendChild(modalInnerEl);
   modalEl.classList.add("show-modal");
@@ -104,17 +87,14 @@ function displayShow(query) {
     const cardInnerEl = document.createElement("div");
     cardInnerEl.classList.add("card-inner");
 
-    if (show.poster_path === null) {
-      cardInnerEl.innerHTML = `
-        <img src="./img/poster-not-found.jpg" class="card-img">
-        <div class="card-name">${show.name}</div>
-      `;
-    } else {
-      cardInnerEl.innerHTML = `
-        <img src=${imgUrl + show.poster_path} class="card-img">
-        <div class="card-name">${show.name}</div>
-      `;
-    }
+    cardInnerEl.innerHTML = `
+      <img src=${
+        show.poster_path === null
+          ? "./img/poster-not-found.jpg"
+          : imgUrl + show.poster_path
+      } class="card-img">
+      <div class="card-name">${show.name}</div>
+    `;
 
     cardEl.appendChild(cardInnerEl);
 
