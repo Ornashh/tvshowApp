@@ -1,28 +1,28 @@
-const popularShowUrl =
-  "https://api.themoviedb.org/3/discover/tv?api_key=39008b197a5755859d6786a809d485be&language=en-US&sort_by=popularity.desc&page=";
+const api = "39008b197a5755859d6786a809d485be";
+
+const popularShowUrl = `https://api.themoviedb.org/3/discover/tv?api_key=${api}&language=en-US&sort_by=popularity.desc&page=`;
+const searchUrl = `https://api.themoviedb.org/3/search/tv?api_key=${api}&language=en-US&page=1&query=`;
 const imgUrl = "http://image.tmdb.org/t/p/w1280";
-const searchUrl =
-  "https://api.themoviedb.org/3/search/tv?api_key=39008b197a5755859d6786a809d485be&language=en-US&page=1&query=";
 
 const cardEl = document.querySelector(".card");
 const modalEl = document.querySelector(".modal");
 const formEl = document.querySelector(".form");
 const searchEl = document.querySelector(".search");
 const backBtn = document.querySelector(".back-btn");
-const pagination = document.querySelector(".pagination");
-const paginationInner = document.querySelector(".pagination ul");
+const loadMoreBtn = document.querySelector(".more-btn");
+
+let page = 1;
+
+let ff = false;
 
 async function fetchDetails(id) {
-  const response = await fetch(
-    `https://api.themoviedb.org/3/tv/${id}?api_key=39008b197a5755859d6786a809d485be&language=en-US`
-  );
-  const details = await response.json();
+  const details = await (
+    await fetch(
+      `https://api.themoviedb.org/3/tv/${id}?api_key=${api}&language=en-US`
+    )
+  ).json();
 
-  const genresArr = [];
-
-  details.genres.forEach((genres) => {
-    genresArr.push(genres.name);
-  });
+  const genresArr = details.genres.map((genres) => genres.name);
 
   const modalInnerEl = document.createElement("div");
   modalInnerEl.classList.add("modal-inner");
@@ -74,16 +74,9 @@ async function fetchDetails(id) {
 }
 
 async function fetchShow(url) {
-  const response = await fetch(url);
-  const show = await response.json();
+  const data = await (await fetch(url)).json();
 
-  displayShow(show.results);
-}
-
-function displayShow(query) {
-  cardEl.innerHTML = "";
-
-  query.forEach((show) => {
+  data.results.forEach((show) => {
     const cardInnerEl = document.createElement("div");
     cardInnerEl.classList.add("card-inner");
 
@@ -111,86 +104,30 @@ fetchShow(popularShowUrl);
 formEl.addEventListener("submit", (e) => {
   e.preventDefault();
 
+  cardEl.innerHTML = "";
+
   if (searchEl.value) {
     fetchShow(searchUrl + searchEl.value);
     searchEl.value = "";
   }
 
-  backBtn.style.display = "block";
-  pagination.style.display = "none";
+  backBtn.parentElement.style.display = "block";
+  loadMoreBtn.parentElement.style.display = "none";
 
   backBtn.addEventListener("click", () => {
-    backBtn.style.display = "none";
-    pagination.style.display = "block";
-    paginationInner.innerHTML = createPagination(totalPages, page);
+    cardEl.innerHTML = "";
+
+    backBtn.parentElement.style.display = "none";
+    loadMoreBtn.parentElement.style.display = "block";
+
+    fetchShow(popularShowUrl);
+
+    page = 1;
   });
 });
 
-let totalPages = 500;
-let page = 1;
+loadMoreBtn.addEventListener("click", () => {
+  page++;
 
-function createPagination(totalPages, page) {
-  let liTag = "";
-  let active;
-  let beforePage = page - 1;
-  let afterPage = page + 1;
-
-  if (page > 1) {
-    liTag += `<li class="btn prev" onclick="createPagination(totalPages, ${
-      page - 1
-    })"><span><i class="fas fa-angle-left"></i></span></li>`;
-    fetchShow(popularShowUrl + page);
-  }
-
-  if (page > 2) {
-    liTag += `<li class="first numb" onclick="createPagination(totalPages, 1)"><span>1</span></li>`;
-    if (page > 3) {
-      liTag += `<li class="dots"><span>...</span></li>`;
-    }
-  }
-
-  if (page == totalPages) {
-    beforePage = beforePage - 2;
-  } else if (page == totalPages - 1) {
-    beforePage = beforePage - 1;
-  }
-
-  if (page == 1) {
-    afterPage = afterPage + 2;
-  } else if (page == 2) {
-    afterPage = afterPage + 1;
-  }
-
-  for (let plength = beforePage; plength <= afterPage; plength++) {
-    if (plength > totalPages) {
-      continue;
-    }
-    if (plength == 0) {
-      plength = plength + 1;
-    }
-    if (page == plength) {
-      active = "active";
-    } else {
-      active = "";
-    }
-    liTag += `<li class="numb ${active}" onclick="createPagination(totalPages, ${plength})"><span>${plength}</span></li>`;
-  }
-
-  if (page < totalPages - 1) {
-    if (page < totalPages - 2) {
-      liTag += `<li class="dots"><span>...</span></li>`;
-    }
-    liTag += `<li class="last numb" onclick="createPagination(totalPages, ${totalPages})"><span>${totalPages}</span></li>`;
-  }
-
-  if (page < totalPages) {
-    liTag += `<li class="btn next" onclick="createPagination(totalPages, ${
-      page + 1
-    })"><span><i class="fas fa-angle-right"></i></span></li>`;
-    fetchShow(popularShowUrl + page);
-  }
-  paginationInner.innerHTML = liTag;
-  return liTag;
-}
-
-paginationInner.innerHTML = createPagination(totalPages, page);
+  fetchShow(popularShowUrl + page);
+});
